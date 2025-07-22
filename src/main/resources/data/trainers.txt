@@ -1,0 +1,4 @@
+# Trainer data format: firstName,lastName,specialization
+Nurdau,Let,Gym
+Kuka,Dos,Yoga
+Messi,Ronaldo,Footbsall

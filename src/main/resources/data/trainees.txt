@@ -1,0 +1,4 @@
+# Trainee data format: firstName,lastName,dateOfBirth(yyyy-MM-dd),address
+Marlen,Seiitzhan,1500-05-15,123 Abay St
+Meirzhan,Sattibay,1985-08-20,456 Satbaay Ave
+Ernur,Elemes,1992-03-10,789 dragon St

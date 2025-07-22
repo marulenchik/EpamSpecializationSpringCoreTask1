@@ -1,0 +1,5 @@
+# Training type data format: trainingTypeName
+Fitness
+Yoga
+Football
+Basketball
