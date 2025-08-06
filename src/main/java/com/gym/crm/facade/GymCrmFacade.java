@@ -3,12 +3,14 @@ package com.gym.crm.facade;
 import com.gym.crm.model.Trainee;
 import com.gym.crm.model.Trainer;
 import com.gym.crm.model.Training;
+import com.gym.crm.model.TrainingType;
 import com.gym.crm.service.TraineeService;
 import com.gym.crm.service.TrainerService;
 import com.gym.crm.service.TrainingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,73 +31,131 @@ public class GymCrmFacade {
         log.info("GymCrmFacade initialized with all services");
     }
 
+    public Trainer createTrainer(Trainer trainer) {
+        log.info("Facade: Creating trainer");
+        return trainerService.createTrainer(trainer);
+    }
+
     public Trainee createTrainee(Trainee trainee) {
         log.info("Facade: Creating trainee");
         return traineeService.createTrainee(trainee);
     }
-    
-    public Trainee updateTrainee(Trainee trainee) {
-        log.info("Facade: Updating trainee with id: {}", trainee.getId());
-        return traineeService.updateTrainee(trainee);
+
+    public boolean matchTraineeCredentials(String username, String password) {
+        log.debug("Facade: Matching trainee credentials");
+        return traineeService.matchTraineeCredentials(username, password);
+    }
+
+    public boolean matchTrainerCredentials(String username, String password) {
+        log.debug("Facade: Matching trainer credentials");
+        return trainerService.matchTrainerCredentials(username, password);
+    }
+
+    public Optional<Trainer> getTrainerByUsername(String username) {
+        log.debug("Facade: Getting trainer by username: {}", username);
+        return trainerService.selectTrainerByUsername(username);
+    }
+
+    public Optional<Trainee> getTraineeByUsername(String username) {
+        log.debug("Facade: Getting trainee by username: {}", username);
+        return traineeService.selectTraineeByUsername(username);
+    }
+
+    public boolean changeTraineePassword(String username, String oldPassword, String newPassword) {
+        log.info("Facade: Changing trainee password");
+        return traineeService.changeTraineePassword(username, oldPassword, newPassword);
+    }
+
+    public boolean changeTrainerPassword(String username, String oldPassword, String newPassword) {
+        log.info("Facade: Changing trainer password");
+        return trainerService.changeTrainerPassword(username, oldPassword, newPassword);
+    }
+
+    public Trainer updateTrainer(String username, String password, Trainer trainer) {
+        log.info("Facade: Updating trainer profile");
+        return trainerService.updateTrainer(username, password, trainer);
+    }
+
+    public Trainee updateTrainee(String username, String password, Trainee trainee) {
+        log.info("Facade: Updating trainee profile");
+        return traineeService.updateTrainee(username, password, trainee);
+    }
+
+    public boolean activateTrainee(String username, String password) {
+        log.info("Facade: Activating trainee");
+        return traineeService.activateTrainee(username, password);
     }
     
-    public void deleteTrainee(Long id) {
-        log.info("Facade: Deleting trainee with id: {}", id);
-        traineeService.deleteTrainee(id);
+    public boolean deactivateTrainee(String username, String password) {
+        log.info("Facade: Deactivating trainee");
+        return traineeService.deactivateTrainee(username, password);
+    }
+
+    public boolean activateTrainer(String username, String password) {
+        log.info("Facade: Activating trainer");
+        return trainerService.activateTrainer(username, password);
     }
     
-    public Optional<Trainee> getTrainee(Long id) {
-        log.debug("Facade: Getting trainee with id: {}", id);
-        return traineeService.selectTrainee(id);
+    public boolean deactivateTrainer(String username, String password) {
+        log.info("Facade: Deactivating trainer");
+        return trainerService.deactivateTrainer(username, password);
+    }
+
+    public boolean deleteTraineeByUsername(String username, String password) {
+        log.info("Facade: Deleting trainee by username");
+        return traineeService.deleteTraineeByUsername(username, password);
+    }
+
+    public List<Training> getTraineeTrainingsList(String traineeUsername, String traineePassword,
+                                                 LocalDate fromDate, LocalDate toDate,
+                                                 String trainerName, String trainingTypeName) {
+        log.info("Facade: Getting trainee trainings list with criteria");
+        return trainingService.getTraineeTrainingsList(traineeUsername, traineePassword,
+                fromDate, toDate, trainerName, trainingTypeName);
+    }
+
+    public List<Training> getTrainerTrainingsList(String trainerUsername, String trainerPassword,
+                                                 LocalDate fromDate, LocalDate toDate,
+                                                 String traineeName) {
+        log.info("Facade: Getting trainer trainings list with criteria");
+        return trainingService.getTrainerTrainingsList(trainerUsername, trainerPassword,
+                fromDate, toDate, traineeName);
+    }
+    
+    // 16. Add training
+    public Training addTraining(Training training) {
+        log.info("Facade: Adding training");
+        return trainingService.addTraining(training);
+    }
+
+    public List<Trainer> getTrainersNotAssignedToTrainee(String traineeUsername) {
+        log.info("Facade: Getting trainers not assigned to trainee");
+        return trainerService.getTrainersNotAssignedToTrainee(traineeUsername);
+    }
+
+    public Trainee updateTraineeTrainersList(String traineeUsername, String traineePassword,
+                                            List<String> trainerUsernames) {
+        log.info("Facade: Updating trainee's trainers list");
+        return traineeService.updateTraineeTrainersList(traineeUsername, traineePassword, trainerUsernames);
+    }
+
+    public List<TrainingType> getAllTrainingTypes() {
+        log.debug("Facade: Getting all training types");
+        return trainingService.getAllTrainingTypes();
     }
     
     public List<Trainee> getAllTrainees() {
         log.debug("Facade: Getting all trainees");
         return traineeService.selectAllTrainees();
     }
-
-    public Trainer createTrainer(Trainer trainer) {
-        log.info("Facade: Creating trainer");
-        return trainerService.createTrainer(trainer);
-    }
-    
-    public Trainer updateTrainer(Trainer trainer) {
-        log.info("Facade: Updating trainer with id: {}", trainer.getId());
-        return trainerService.updateTrainer(trainer);
-    }
-    
-    public Optional<Trainer> getTrainer(Long id) {
-        log.debug("Facade: Getting trainer with id: {}", id);
-        return trainerService.selectTrainer(id);
-    }
     
     public List<Trainer> getAllTrainers() {
         log.debug("Facade: Getting all trainers");
         return trainerService.selectAllTrainers();
     }
-
-    public Training createTraining(Training training) {
-        log.info("Facade: Creating training");
-        return trainingService.createTraining(training);
-    }
-    
-    public Optional<Training> getTraining(Long id) {
-        log.debug("Facade: Getting training with id: {}", id);
-        return trainingService.selectTraining(id);
-    }
     
     public List<Training> getAllTrainings() {
         log.debug("Facade: Getting all trainings");
         return trainingService.selectAllTrainings();
-    }
-    
-    public List<Training> getTrainingsByTrainee(Long traineeId) {
-        log.debug("Facade: Getting trainings for trainee id: {}", traineeId);
-        return trainingService.selectTrainingsByTraineeId(traineeId);
-    }
-    
-    public List<Training> getTrainingsByTrainer(Long trainerId) {
-        log.debug("Facade: Getting trainings for trainer id: {}", trainerId);
-        return trainingService.selectTrainingsByTrainerId(trainerId);
     }
 } 
