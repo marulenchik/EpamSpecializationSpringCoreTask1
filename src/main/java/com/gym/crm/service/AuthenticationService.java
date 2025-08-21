@@ -2,7 +2,6 @@ package com.gym.crm.service;
 
 import com.gym.crm.model.Trainee;
 import com.gym.crm.model.Trainer;
-import com.gym.crm.model.User;
 import com.gym.crm.repository.TraineeRepository;
 import com.gym.crm.repository.TrainerRepository;
 import lombok.extern.slf4j.Slf4j;
