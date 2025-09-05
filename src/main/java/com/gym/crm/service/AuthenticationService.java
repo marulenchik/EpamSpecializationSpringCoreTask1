@@ -27,6 +27,7 @@ public class AuthenticationService {
         this.traineeRepository = traineeRepository;
     }
     
+    
     public boolean authenticateTrainer(String username, String password) {
         log.debug("Authenticating trainer with username: {}", username);
         

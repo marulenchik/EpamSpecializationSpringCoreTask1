@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.slf4j.MDC;
 
 @Component("gymTransactionInterceptor")
 @Slf4j
@@ -16,6 +17,9 @@ public class TransactionInterceptor implements HandlerInterceptor {
         String transactionId = TransactionContext.generateTransactionId();
         TransactionContext.setTransactionId(transactionId);
         
+        // Add transaction ID to MDC for logging
+        MDC.put("transactionId", transactionId);
+        
         log.info("Transaction started [{}]: {} {}", transactionId, request.getMethod(), request.getRequestURI());
         
         return true;
@@ -25,14 +29,19 @@ public class TransactionInterceptor implements HandlerInterceptor {
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
         String transactionId = TransactionContext.getTransactionId();
         
-        if (ex != null) {
-            log.error("Transaction completed with error [{}]: {} {} - Status: {}, Error: {}", 
-                    transactionId, request.getMethod(), request.getRequestURI(), response.getStatus(), ex.getMessage());
-        } else {
-            log.info("Transaction completed [{}]: {} {} - Status: {}", 
-                    transactionId, request.getMethod(), request.getRequestURI(), response.getStatus());
+        try {
+            if (ex != null || response.getStatus() >= 400) {
+                log.error("Transaction completed with error [{}]: {} {} - Status: {}, Error: {}", 
+                        transactionId, request.getMethod(), request.getRequestURI(), response.getStatus(), 
+                        ex != null ? ex.getMessage() : "HTTP Error");
+            } else {
+                log.info("Transaction completed [{}]: {} {} - Status: {}", 
+                        transactionId, request.getMethod(), request.getRequestURI(), response.getStatus());
+            }
+        } finally {
+            // Clean up
+            TransactionContext.clear();
+            MDC.clear();
         }
-        
-        TransactionContext.clear();
     }
 }

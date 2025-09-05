@@ -33,6 +33,7 @@ public class GymController {
     @Autowired
     private GymCrmFacade gymCrmFacade;
     
+    
     @Operation(summary = "User login", description = "Authenticates user credentials (both trainee and trainer)")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Login successful"),

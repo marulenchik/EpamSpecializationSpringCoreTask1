@@ -11,4 +11,5 @@ public interface TraineeRepository extends JpaRepository<Trainee, Long> {
     Optional<Trainee> findByUsername(String username);
     boolean existsByFirstNameAndLastName(String firstName, String lastName);
     void deleteByUsername(String username);
+    long countByIsActiveTrue();
 } 
