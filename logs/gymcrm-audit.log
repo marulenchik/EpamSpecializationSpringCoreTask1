@@ -1,24 +1,8 @@
-2025-09-05 17:39:15,291 [main] INFO  com.gym.crm.service.AuditService - [] [] AUDIT_PROFILE_UPDATE [null]: TRAINER profile updated: updateuser - Changes: {firstName=NewFirstName, isActive=true}
-2025-09-05 17:39:15,300 [main] INFO  com.gym.crm.service.AuditService - [] [] AUDIT_AUTH_SUCCESS [null]: User 'testuser' authenticated successfully from web
-2025-09-05 17:39:15,303 [main] INFO  com.gym.crm.service.AuditService - [] [] AUDIT_TRAINING_CREATED [null]: Training 'Morning Workout' created - Trainee: trainee1, Trainer: trainer1
-2025-09-05 17:39:15,305 [main] INFO  com.gym.crm.service.AuditService - [] [] AUDIT_ACCOUNT_STATUS [null]: TRAINEE account activated for user: statususer
-2025-09-05 17:39:15,305 [main] INFO  com.gym.crm.service.AuditService - [] [] AUDIT_ACCOUNT_STATUS [null]: TRAINEE account deactivated for user: statususer
-2025-09-05 17:39:15,307 [main] INFO  com.gym.crm.service.AuditService - [] [] AUDIT_USER_REGISTRATION [null]: New TRAINEE registered: newuser
-2025-09-05 17:39:15,309 [main] WARN  com.gym.crm.service.AuditService - [] [] AUDIT_ACCOUNT_DELETION [null]: TRAINER account deleted: deleteuser
-2025-09-05 17:39:15,313 [main] INFO  com.gym.crm.service.AuditService - [] [] AUDIT_PASSWORD_CHANGE [null]: Password changed for user: passworduser
-2025-09-05 17:39:47,257 [main] INFO  com.gym.crm.service.AuditService - [] [] AUDIT_PROFILE_UPDATE [null]: TRAINER profile updated: updateuser - Changes: {firstName=NewFirstName, isActive=true}
-2025-09-05 17:39:47,259 [main] INFO  com.gym.crm.service.AuditService - [] [] AUDIT_AUTH_SUCCESS [null]: User 'testuser' authenticated successfully from web
-2025-09-05 17:39:47,262 [main] INFO  com.gym.crm.service.AuditService - [] [] AUDIT_TRAINING_CREATED [null]: Training 'Morning Workout' created - Trainee: trainee1, Trainer: trainer1
-2025-09-05 17:39:47,264 [main] INFO  com.gym.crm.service.AuditService - [] [] AUDIT_ACCOUNT_STATUS [null]: TRAINEE account activated for user: statususer
-2025-09-05 17:39:47,264 [main] INFO  com.gym.crm.service.AuditService - [] [] AUDIT_ACCOUNT_STATUS [null]: TRAINEE account deactivated for user: statususer
-2025-09-05 17:39:47,266 [main] INFO  com.gym.crm.service.AuditService - [] [] AUDIT_USER_REGISTRATION [null]: New TRAINEE registered: newuser
-2025-09-05 17:39:47,268 [main] WARN  com.gym.crm.service.AuditService - [] [] AUDIT_ACCOUNT_DELETION [null]: TRAINER account deleted: deleteuser
-2025-09-05 17:39:47,273 [main] INFO  com.gym.crm.service.AuditService - [] [] AUDIT_PASSWORD_CHANGE [null]: Password changed for user: passworduser
-2025-09-05 17:40:23,042 [main] INFO  com.gym.crm.service.AuditService - [] [] AUDIT_PROFILE_UPDATE [null]: TRAINER profile updated: updateuser - Changes: {firstName=NewFirstName, isActive=true}
-2025-09-05 17:40:23,045 [main] INFO  com.gym.crm.service.AuditService - [] [] AUDIT_AUTH_SUCCESS [null]: User 'testuser' authenticated successfully from web
-2025-09-05 17:40:23,048 [main] INFO  com.gym.crm.service.AuditService - [] [] AUDIT_TRAINING_CREATED [null]: Training 'Morning Workout' created - Trainee: trainee1, Trainer: trainer1
-2025-09-05 17:40:23,051 [main] INFO  com.gym.crm.service.AuditService - [] [] AUDIT_ACCOUNT_STATUS [null]: TRAINEE account activated for user: statususer
-2025-09-05 17:40:23,051 [main] INFO  com.gym.crm.service.AuditService - [] [] AUDIT_ACCOUNT_STATUS [null]: TRAINEE account deactivated for user: statususer
-2025-09-05 17:40:23,054 [main] INFO  com.gym.crm.service.AuditService - [] [] AUDIT_USER_REGISTRATION [null]: New TRAINEE registered: newuser
-2025-09-05 17:40:23,057 [main] WARN  com.gym.crm.service.AuditService - [] [] AUDIT_ACCOUNT_DELETION [null]: TRAINER account deleted: deleteuser
-2025-09-05 17:40:23,062 [main] INFO  com.gym.crm.service.AuditService - [] [] AUDIT_PASSWORD_CHANGE [null]: Password changed for user: passworduser
+2025-09-13 11:30:48,935 [main] INFO  com.gym.crm.service.AuditService - [] [] AUDIT_PROFILE_UPDATE [null]: TRAINER profile updated: updateuser - Changes: {firstName=NewFirstName, isActive=true}
+2025-09-13 11:30:48,937 [main] INFO  com.gym.crm.service.AuditService - [] [] AUDIT_AUTH_SUCCESS [null]: User 'testuser' authenticated successfully from web
+2025-09-13 11:30:48,940 [main] INFO  com.gym.crm.service.AuditService - [] [] AUDIT_TRAINING_CREATED [null]: Training 'Morning Workout' created - Trainee: trainee1, Trainer: trainer1
+2025-09-13 11:30:48,942 [main] INFO  com.gym.crm.service.AuditService - [] [] AUDIT_ACCOUNT_STATUS [null]: TRAINEE account activated for user: statususer
+2025-09-13 11:30:48,942 [main] INFO  com.gym.crm.service.AuditService - [] [] AUDIT_ACCOUNT_STATUS [null]: TRAINEE account deactivated for user: statususer
+2025-09-13 11:30:48,944 [main] INFO  com.gym.crm.service.AuditService - [] [] AUDIT_USER_REGISTRATION [null]: New TRAINEE registered: newuser
+2025-09-13 11:30:48,946 [main] WARN  com.gym.crm.service.AuditService - [] [] AUDIT_ACCOUNT_DELETION [null]: TRAINER account deleted: deleteuser
+2025-09-13 11:30:48,949 [main] INFO  com.gym.crm.service.AuditService - [] [] AUDIT_PASSWORD_CHANGE [null]: Password changed for user: passworduser

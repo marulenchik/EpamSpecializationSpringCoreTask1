@@ -4,6 +4,7 @@ import com.gym.crm.model.Trainer;
 import com.gym.crm.model.TrainingType;
 import com.gym.crm.repository.TrainerRepository;
 import com.gym.crm.repository.TrainingTypeRepository;
+import com.gym.crm.security.PasswordService;
 import com.gym.crm.util.UserCredentialGenerator;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,7 @@ public class TrainerService {
     private TrainingTypeRepository trainingTypeRepository;
     private UserCredentialGenerator credentialGenerator;
     private AuthenticationService authenticationService;
+    private PasswordService passwordService;
     
     @Autowired
     public void setTrainerRepository(TrainerRepository trainerRepository) {
@@ -46,6 +48,11 @@ public class TrainerService {
         this.authenticationService = authenticationService;
     }
     
+    @Autowired
+    public void setPasswordService(PasswordService passwordService) {
+        this.passwordService = passwordService;
+    }
+    
     public Trainer createTrainer(@Valid Trainer trainer) {
         log.info("Creating trainer profile for {} {}", trainer.getFirstName(), trainer.getLastName());
         
@@ -54,13 +61,16 @@ public class TrainerService {
                 trainer.getLastName(),
                 trainerRepository::existsByFirstNameAndLastName
         );
-        String password = credentialGenerator.generatePassword();
+        UserCredentialGenerator.PasswordInfo passwordInfo = credentialGenerator.generateSecurePassword();
         
         trainer.setUsername(username);
-        trainer.setPassword(password);
+        trainer.setPassword(passwordInfo.getHashedPassword());
+        trainer.setSalt(passwordInfo.getSalt());
         trainer.setIsActive(true);
         
         Trainer savedTrainer = trainerRepository.save(trainer);
+        // Set the raw password for the response (it will be cleared after response)
+        savedTrainer.setPassword(passwordInfo.getRawPassword());
         log.info("Created trainer with id: {} and username: {}", savedTrainer.getId(), username);
         return savedTrainer;
     }
@@ -80,7 +90,11 @@ public class TrainerService {
         
         Optional<Trainer> trainer = authenticationService.getAuthenticatedTrainer(username, oldPassword);
         if (trainer.isPresent()) {
-            trainer.get().setPassword(newPassword);
+            String salt = passwordService.generateSalt();
+            String hashedPassword = passwordService.hashPassword(newPassword, salt);
+            
+            trainer.get().setPassword(hashedPassword);
+            trainer.get().setSalt(salt);
             trainerRepository.save(trainer.get());
             log.info("Password changed successfully for trainer: {}", username);
             return true;

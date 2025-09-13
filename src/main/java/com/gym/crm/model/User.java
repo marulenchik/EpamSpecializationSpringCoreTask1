@@ -33,6 +33,15 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
     
+    @Column(name = "salt", nullable = false)
+    private String salt;
+    
+    @Column(name = "failed_login_attempts", nullable = false)
+    private Integer failedLoginAttempts = 0;
+    
+    @Column(name = "account_locked_until")
+    private java.time.LocalDateTime accountLockedUntil;
+    
     @NotNull
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;

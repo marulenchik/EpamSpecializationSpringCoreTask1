@@ -7,6 +7,8 @@ import com.gym.crm.model.Trainee;
 import com.gym.crm.model.Trainer;
 import com.gym.crm.model.Training;
 import com.gym.crm.model.TrainingType;
+import com.gym.crm.security.JwtService;
+import com.gym.crm.service.AuthenticationService;
 import com.gym.crm.util.TransactionContext;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -33,27 +35,42 @@ public class GymController {
     @Autowired
     private GymCrmFacade gymCrmFacade;
     
+    @Autowired
+    private AuthenticationService authenticationService;
     
-    @Operation(summary = "User login", description = "Authenticates user credentials (both trainee and trainer)")
+    @Autowired
+    private JwtService jwtService;
+    
+    
+    @Operation(summary = "User login", description = "Authenticates user credentials and returns JWT token")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Login successful"),
+        @ApiResponse(responseCode = "200", description = "Login successful",
+                content = @Content(schema = @Schema(implementation = LoginResponse.class))),
         @ApiResponse(responseCode = "401", description = "Invalid credentials",
                 content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping("/login")
-    public ResponseEntity<Void> login(@Valid LoginRequest request) {
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         String transactionId = TransactionContext.getTransactionId();
         log.info("User login attempt [{}]: {}", transactionId, request.getUsername());
         
-        boolean isTraineeAuthenticated = gymCrmFacade.matchTraineeCredentials(request.getUsername(), request.getPassword());
-        boolean isTrainerAuthenticated = gymCrmFacade.matchTrainerCredentials(request.getUsername(), request.getPassword());
-        
-        if (!isTraineeAuthenticated && !isTrainerAuthenticated) {
+        try {
+            String token = authenticationService.authenticateAndGenerateToken(
+                    request.getUsername(), 
+                    request.getPassword()
+            );
+            
+            // Determine user type for response
+            String userType = determineUserType(request.getUsername());
+            
+            LoginResponse response = new LoginResponse(token, request.getUsername(), userType);
+            log.info("User login successful [{}]: {}", transactionId, request.getUsername());
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            log.warn("User login failed [{}]: {} - {}", transactionId, request.getUsername(), e.getMessage());
             throw new SecurityException("Invalid credentials");
         }
-        
-        log.info("User login successful [{}]: {}", transactionId, request.getUsername());
-        return ResponseEntity.ok().build();
     }
     
     @Operation(summary = "Change password", description = "Changes user password (both trainee and trainer)")
@@ -147,5 +164,34 @@ public class GymController {
         
         log.info("Retrieved {} training types [{}]", response.size(), transactionId);
         return ResponseEntity.ok(response);
+    }
+    
+    @Operation(summary = "User logout", description = "Logs out the current user")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Logout successful")
+    })
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout() {
+        String transactionId = TransactionContext.getTransactionId();
+        log.info("User logout [{}]", transactionId);
+        
+        // JWT tokens are stateless, so logout is handled by client discarding the token
+        // In a production environment, you might want to implement a token blacklist
+        
+        return ResponseEntity.ok("{\"message\":\"Logout successful\"}");
+    }
+    
+    private String determineUserType(String username) {
+        Optional<Trainer> trainer = gymCrmFacade.getTrainerByUsername(username);
+        if (trainer.isPresent()) {
+            return "TRAINER";
+        }
+        
+        Optional<Trainee> trainee = gymCrmFacade.getTraineeByUsername(username);
+        if (trainee.isPresent()) {
+            return "TRAINEE";
+        }
+        
+        return "USER";
     }
 }
