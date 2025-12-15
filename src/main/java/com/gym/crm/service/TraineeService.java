@@ -1,5 +1,6 @@
 package com.gym.crm.service;
 
+import com.gym.crm.integration.client.WorkloadServiceClient;
 import com.gym.crm.model.Trainee;
 import com.gym.crm.model.Trainer;
 import com.gym.crm.repository.TraineeRepository;
@@ -29,6 +30,7 @@ public class TraineeService {
     private UserCredentialGenerator credentialGenerator;
     private AuthenticationService authenticationService;
     private PasswordService passwordService;
+    private WorkloadServiceClient workloadServiceClient;
     
     @Autowired
     public void setTraineeRepository(TraineeRepository traineeRepository) {
@@ -58,6 +60,11 @@ public class TraineeService {
     @Autowired
     public void setPasswordService(PasswordService passwordService) {
         this.passwordService = passwordService;
+    }
+
+    @Autowired
+    public void setWorkloadServiceClient(WorkloadServiceClient workloadServiceClient) {
+        this.workloadServiceClient = workloadServiceClient;
     }
     
     public Trainee createTrainee(@Valid Trainee trainee) {
@@ -163,10 +170,16 @@ public class TraineeService {
         
         Optional<Trainee> trainee = authenticationService.getAuthenticatedTrainee(username, password);
         if (trainee.isPresent()) {
+            // Capture trainings before deletion to notify workload service
+            List<com.gym.crm.model.Training> traineeTrainings = trainingRepository.findByTraineeUsername(username);
+
             // Cascade delete trainings
             trainingRepository.deleteByTraineeUsername(username);
             traineeRepository.deleteByUsername(username);
             log.info("Deleted trainee profile and related trainings for username: {}", username);
+
+            // Notify workload service for each removed training (non-blocking for main flow)
+            traineeTrainings.forEach(workloadServiceClient::notifyTrainingDeleted);
             return true;
         }
         

@@ -36,5 +36,7 @@ public interface TrainingRepository extends JpaRepository<Training, Long> {
         @Param("traineeName") String traineeName
     );
     
+    List<Training> findByTraineeUsername(String traineeUsername);
+    
     void deleteByTraineeUsername(String traineeUsername);
 } 

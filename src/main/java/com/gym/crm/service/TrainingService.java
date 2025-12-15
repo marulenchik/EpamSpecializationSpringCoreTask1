@@ -4,6 +4,7 @@ import com.gym.crm.model.Trainee;
 import com.gym.crm.model.Trainer;
 import com.gym.crm.model.Training;
 import com.gym.crm.model.TrainingType;
+import com.gym.crm.integration.client.WorkloadServiceClient;
 import com.gym.crm.repository.TraineeRepository;
 import com.gym.crm.repository.TrainerRepository;
 import com.gym.crm.repository.TrainingRepository;
@@ -30,6 +31,7 @@ public class TrainingService {
     private TrainerRepository trainerRepository;
     private TrainingTypeRepository trainingTypeRepository;
     private AuthenticationService authenticationService;
+    private WorkloadServiceClient workloadServiceClient;
     
     @Autowired
     public void setTrainingRepository(TrainingRepository trainingRepository) {
@@ -55,6 +57,11 @@ public class TrainingService {
     public void setAuthenticationService(AuthenticationService authenticationService) {
         this.authenticationService = authenticationService;
     }
+
+    @Autowired
+    public void setWorkloadServiceClient(WorkloadServiceClient workloadServiceClient) {
+        this.workloadServiceClient = workloadServiceClient;
+    }
     
     public Training addTraining(@Valid Training training) {
         log.info("Adding training session: {} for trainee {} and trainer {}", 
@@ -64,6 +71,9 @@ public class TrainingService {
         
         Training savedTraining = trainingRepository.save(training);
         log.info("Added training with id: {}", savedTraining.getId());
+
+        // Notify workload service after successful creation (non-blocking for main business flow)
+        workloadServiceClient.notifyTrainingAdded(savedTraining);
         return savedTraining;
     }
     
