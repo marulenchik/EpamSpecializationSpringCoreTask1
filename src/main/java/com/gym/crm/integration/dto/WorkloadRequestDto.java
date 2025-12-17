@@ -20,5 +20,6 @@ public class WorkloadRequestDto {
     private String trainingDate;      // yyyy-MM-dd
     private Integer trainingDuration; // minutes/hours as number
     private String actionType;        // ADD | DELETE
+    private String transactionId;
 }
 

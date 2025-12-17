@@ -79,22 +79,16 @@
 			<artifactId>micrometer-registry-prometheus</artifactId>
 		</dependency>
 		
-		<!-- Spring WebFlux for WebClient -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-webflux</artifactId>
-		</dependency>
-
 		<!-- Eureka Client for service discovery -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
 
-		<!-- Resilience4j Circuit Breaker -->
+		<!-- ActiveMQ for asynchronous messaging to Trainer Workload Service -->
 		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-activemq</artifactId>
 		</dependency>
 
 		<!-- Spring Security -->

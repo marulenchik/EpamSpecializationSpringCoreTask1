@@ -3,24 +3,20 @@ package com.gym.crm.integration.client;
 import com.gym.crm.integration.dto.WorkloadRequestDto;
 import com.gym.crm.model.Training;
 import com.gym.crm.util.TransactionContext;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.util.Assert;
 
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Client responsible for notifying TRAINER-WORKLOAD-SERVICE about training add/delete events.
+ * Client responsible for notifying TRAINER-WORKLOAD-SERVICE via ActiveMQ about training add/delete events.
+ * Sending is asynchronous and should never block or interrupt the main business flow.
  */
 @Component
 @RequiredArgsConstructor
@@ -29,9 +25,12 @@ public class WorkloadServiceClient {
 
     private static final String ACTION_ADD = "ADD";
     private static final String ACTION_DELETE = "DELETE";
+    private static final String QUEUE_NAME = "trainer.workload.queue";
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
 
-    private final WebClient.Builder workloadWebClientBuilder;
+    private final JmsTemplate jmsTemplate;
+    @Qualifier("workloadTaskExecutor")
+    private final org.springframework.core.task.TaskExecutor taskExecutor;
 
     /**
      * Notify workload service after a training is successfully created.
@@ -42,7 +41,7 @@ public class WorkloadServiceClient {
             return;
         }
         WorkloadRequestDto dto = buildDto(training, ACTION_ADD);
-        execute(dto);
+        sendAsync(dto);
     }
 
     /**
@@ -54,10 +53,11 @@ public class WorkloadServiceClient {
             return;
         }
         WorkloadRequestDto dto = buildDto(training, ACTION_DELETE);
-        execute(dto);
+        sendAsync(dto);
     }
 
     private WorkloadRequestDto buildDto(Training training, String actionType) {
+        String transactionId = resolveTransactionId();
         return WorkloadRequestDto.builder()
                 .trainerUsername(training.getTrainer().getUsername())
                 .trainerFirstName(training.getTrainer().getFirstName())
@@ -66,42 +66,29 @@ public class WorkloadServiceClient {
                 .trainingDate(training.getTrainingDate().format(DATE_FORMATTER))
                 .trainingDuration(training.getTrainingDuration())
                 .actionType(actionType)
+                .transactionId(transactionId)
                 .build();
     }
 
-    @CircuitBreaker(name = "workloadService", fallbackMethod = "notifyFallback")
-    protected void execute(WorkloadRequestDto dto) {
-        String transactionId = resolveTransactionId();
-        String bearerToken = resolveBearerToken();
-
-        log.info("Calling TRAINER-WORKLOAD-SERVICE with transactionId={} payload={}", transactionId, dto);
-
-        workloadWebClientBuilder.build()
-                .post()
-                .uri("http://TRAINER-WORKLOAD-SERVICE/api/workload")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("X-Transaction-Id", transactionId)
-                .headers(headers -> {
-                    if (bearerToken != null) {
-                        headers.set(HttpHeaders.AUTHORIZATION, bearerToken);
-                    }
-                })
-                .bodyValue(dto)
-                .retrieve()
-                .toBodilessEntity()
-                .block(); // fire-and-forget semantics; fallback ensures main flow not interrupted
-
-        log.info("TRAINER-WORKLOAD-SERVICE call succeeded transactionId={}", transactionId);
+    private void sendAsync(WorkloadRequestDto dto) {
+        taskExecutor.execute(() -> send(dto));
     }
 
-    /**
-     * Fallback: log the error and allow main business flow to continue.
-     */
-    @SuppressWarnings("unused")
-    protected void notifyFallback(WorkloadRequestDto dto, Throwable throwable) {
-        String transactionId = MDC.get("transactionId");
-        log.error("Fallback triggered for workload notification transactionId={} payload={} reason={}",
-                transactionId, dto, Optional.ofNullable(throwable).map(Throwable::getMessage).orElse("unknown error"));
+    private void send(WorkloadRequestDto dto) {
+        Assert.notNull(dto, "WorkloadRequestDto must not be null");
+        String txId = dto.getTransactionId() != null ? dto.getTransactionId() : resolveTransactionId();
+        log.info("Sending workload message to queue={} transactionId={} payload={}", QUEUE_NAME, txId, dto);
+
+        try {
+            jmsTemplate.convertAndSend(QUEUE_NAME, dto, message -> {
+                message.setStringProperty("X-Transaction-Id", txId);
+                return message;
+            });
+            log.info("Workload message sent transactionId={}", txId);
+        } catch (Exception ex) {
+            log.error("Failed to send workload message transactionId={} reason={}", txId, ex.getMessage());
+        }
+
     }
 
     private String resolveTransactionId() {
@@ -112,17 +99,6 @@ public class WorkloadServiceClient {
         }
         MDC.put("transactionId", txId);
         return txId;
-    }
-
-    private String resolveBearerToken() {
-        RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
-        if (attributes instanceof ServletRequestAttributes servletRequestAttributes) {
-            String header = servletRequestAttributes.getRequest().getHeader(HttpHeaders.AUTHORIZATION);
-            if (header != null && header.startsWith("Bearer ")) {
-                return header;
-            }
-        }
-        return null;
     }
 }
 
