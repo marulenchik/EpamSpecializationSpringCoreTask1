@@ -74,6 +74,13 @@ public class WorkloadServiceClient {
         taskExecutor.execute(() -> send(dto));
     }
 
+    /**
+     * Exposed for integration testing or direct DTO-based publishing.
+     */
+    public void sendWorkloadUpdate(WorkloadRequestDto dto) {
+        sendAsync(dto);
+    }
+
     private void send(WorkloadRequestDto dto) {
         Assert.notNull(dto, "WorkloadRequestDto must not be null");
         String txId = dto.getTransactionId() != null ? dto.getTransactionId() : resolveTransactionId();
