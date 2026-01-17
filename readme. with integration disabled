@@ -57,9 +57,9 @@ Second stage runs the application using a lightweight JRE image
 
 Building the Docker Image
 Run the following command from the project root directory:
-```
-docker build -t crm:disabled .
-```
+
+`docker build -t crm:disabled .`
+
 
 Running the Application
 The application listens on port 8080 inside the container.
